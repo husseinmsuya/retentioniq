@@ -12,7 +12,11 @@ import {
   Upload,
   WandSparkles
 } from "lucide-react";
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
+const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+
+if (!API_BASE) {
+  throw new Error("NEXT_PUBLIC_API_URL is not configured.");
+}
 
 const MODEL_FEATURES = [
   "CreditScore",
