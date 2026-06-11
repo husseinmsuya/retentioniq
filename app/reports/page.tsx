@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useAuth } from "@clerk/nextjs";
 
 import {
   BadgeDollarSign,
@@ -17,6 +18,7 @@ import {
   Users,
   WandSparkles
 } from "lucide-react";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
 
 if (!API_BASE) {
@@ -33,12 +35,14 @@ const sidebar = [
   { label: "Reports", href: "/reports", icon: FileBarChart },
   { label: "Settings", href: "/settings", icon: Settings }
 ];
+
 const reports = [
   {
     title: "Churn Risk Report",
     description:
       "Executive churn summary with total customers, high-risk customers, expected churn rate, revenue at risk, low satisfaction, and inactive customers.",
     endpoint: `${API_BASE}/reports/churn`,
+    filename: "retentioniq_churn_risk_report.csv",
     icon: ShieldAlert,
     color: "text-red-300",
     bg: "bg-red-500/15"
@@ -48,6 +52,7 @@ const reports = [
     description:
       "Full customer-level prediction export including churn probability, risk level, card type, geography, salary, and prediction status.",
     endpoint: `${API_BASE}/reports/customers`,
+    filename: "retentioniq_customer_prediction_report.csv",
     icon: FileSpreadsheet,
     color: "text-blue-300",
     bg: "bg-blue-500/15"
@@ -57,22 +62,50 @@ const reports = [
     description:
       "Revenue exposure report for high-risk customers with priority levels and estimated value at risk.",
     endpoint: `${API_BASE}/reports/revenue`,
+    filename: "retentioniq_revenue_at_risk_report.csv",
     icon: BadgeDollarSign,
     color: "text-emerald-300",
     bg: "bg-emerald-500/15"
   }
 ];
 
-function downloadReport(endpoint: string) {
-  const link = document.createElement("a");
-  link.href = endpoint;
-  link.download = "";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
-
 export default function ReportsPage() {
+  const { getToken } = useAuth();
+
+  async function downloadReport(endpoint: string, filename: string) {
+    const token = await getToken();
+
+    if (!token) {
+      alert("Please sign in again before downloading reports.");
+      return;
+    }
+
+    const res = await fetch(endpoint, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (!res.ok) {
+      const message = await res.text().catch(() => "");
+      alert(message || "Report download failed. Please try again.");
+      return;
+    }
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    window.URL.revokeObjectURL(url);
+  }
+
   return (
     <main className="min-h-screen bg-black text-white">
       <div className="flex min-h-screen">
@@ -172,7 +205,9 @@ export default function ReportsPage() {
 
                     <button
                       type="button"
-                      onClick={() => downloadReport(report.endpoint)}
+                      onClick={() =>
+                        downloadReport(report.endpoint, report.filename)
+                      }
                       className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-blue-600 text-sm font-bold transition hover:bg-blue-500"
                     >
                       <Download className="h-4 w-4" />
