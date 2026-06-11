@@ -1294,7 +1294,7 @@ export function RetentionDashboard({ page = "dashboard" }: { page?: string }) {
       }
     `}</style>
 
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen bg-black pb-24 text-white lg:pb-0">
       <div className="flex min-h-screen">
         <aside className="hidden w-72 border-r border-white/10 bg-slate-950 p-5 lg:block">
           <div className="flex items-center gap-3">
@@ -1331,10 +1331,14 @@ export function RetentionDashboard({ page = "dashboard" }: { page?: string }) {
         <section className="min-w-0 flex-1">
           <header className="sticky top-0 z-40 border-b border-white/10 bg-black/80 backdrop-blur-xl">
             <div className="flex h-16 items-center justify-between px-5 lg:px-8">
-              <div>
-                <p className="text-sm text-slate-500">Signed in as {role}</p>
-                <h2 className="font-black">{user?.firstName ?? "RetentionIQ"} Workspace</h2>
-              </div>
+             <div className="min-w-0">
+  <p className="truncate text-xs text-slate-500 sm:text-sm">
+    Signed in as {role}
+  </p>
+  <h2 className="truncate text-sm font-black sm:text-base">
+    {user?.firstName ?? "RetentionIQ"} Workspace
+  </h2>
+</div>
 
               <div className="flex items-center gap-3">
                 <div className="hidden h-10 w-80 items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-slate-500 md:flex">
@@ -1350,7 +1354,9 @@ export function RetentionDashboard({ page = "dashboard" }: { page?: string }) {
             <div className="mb-8 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
               <div>
                 <p className="text-sm font-black uppercase tracking-[0.25em] text-blue-400">{meta.eyebrow}</p>
-                <h2 className="mt-2 text-4xl font-black">{meta.title}</h2>
+                <h2 className="mt-2 text-2xl font-black leading-tight sm:text-4xl">
+  {meta.title}
+</h2>
                 <p className="mt-2 max-w-3xl text-slate-400">{meta.body}</p>
               </div>
 
@@ -1369,7 +1375,7 @@ export function RetentionDashboard({ page = "dashboard" }: { page?: string }) {
               </div>
             )}
 
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6">
               {[
                 { label: "Total Customers", value: stats.total, icon: Users },
                 { label: "High Risk", value: stats.highRisk, icon: AlertTriangle },
@@ -1386,16 +1392,44 @@ export function RetentionDashboard({ page = "dashboard" }: { page?: string }) {
                       <Icon className="h-5 w-5" />
                     </div>
                     <p className="mt-5 text-xs font-bold uppercase tracking-wide text-slate-500">{kpi.label}</p>
-                    <p className="mt-2 break-words text-3xl font-black leading-tight">{kpi.value}</p>
+                    <p className="mt-2 break-words text-2xl font-black leading-tight sm:text-3xl">
+  {kpi.value}
+</p>
                   </div>
                 );
               })}
             </div>
 
-            <ModuleContent page={page} customers={customers} analytics={analytics} stats={stats} />
+                        <ModuleContent page={page} customers={customers} analytics={analytics} stats={stats} />
           </div>
         </section>
       </div>
+
+      <nav className="fixed bottom-0 left-0 right-0 z-50 grid grid-cols-5 border-t border-white/10 bg-black/95 px-2 py-2 text-[11px] text-slate-300 backdrop-blur lg:hidden">
+        {[
+          sidebar[1],
+          sidebar[2],
+          sidebar[3],
+          sidebar[4],
+          sidebar[11]
+        ].map((item) => {
+          const Icon = item.icon;
+          const active = item.page === page;
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex min-w-0 flex-col items-center gap-1 rounded-lg px-1 py-2 ${
+                active ? "bg-blue-500/15 text-blue-300" : "text-slate-400"
+              }`}
+            >
+              <Icon className="h-4 w-4 shrink-0" />
+              <span className="max-w-full truncate">{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
     </main>
     </>
   );
