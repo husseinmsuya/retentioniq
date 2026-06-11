@@ -62,7 +62,11 @@ type Analytics = {
   topRisk: PredictedCustomer[];
   retentionTrend: { name: string; retention: number; churn: number }[];
 };
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/$/, "");
+const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+
+if (!API_BASE) {
+  throw new Error("NEXT_PUBLIC_API_URL is not configured.");
+}
 
 const sidebar = [
   { label: "Landing Page", href: "/", page: "landing", icon: Home },
