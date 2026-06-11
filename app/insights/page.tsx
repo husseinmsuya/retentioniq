@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -19,6 +19,7 @@ import {
   Users,
   WandSparkles
 } from "lucide-react";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
 
 if (!API_BASE) {
@@ -45,6 +46,8 @@ const sidebar = [
 ];
 
 export default function InsightsPage() {
+  const { getToken } = useAuth();
+
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
@@ -59,36 +62,44 @@ export default function InsightsPage() {
     setAnswer("");
 
     try {
+      const token = await getToken();
+
+      if (!token) {
+        setAnswer("Please sign in again before asking AI insights.");
+        return;
+      }
+
       const res = await fetch(`${API_BASE}/ai/insights`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({
           question: prompt
         })
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => null);
 
       if (!res.ok) {
         setAnswer(
-          data.detail ||
-            data.answer ||
-            data.message ||
-            "AI request failed. Please check your backend terminal."
+          data?.detail ||
+            data?.answer ||
+            data?.message ||
+            "AI request failed. Please check your backend authentication settings."
         );
         return;
       }
 
       setAnswer(
-        data.answer ||
-          data.message ||
+        data?.answer ||
+          data?.message ||
           "RetentionIQ AI is ready, but no answer was returned."
       );
     } catch {
       setAnswer(
-       "Backend AI endpoint is not reachable. Check NEXT_PUBLIC_API_URL and make sure the backend is running."
+        "Backend AI endpoint is not reachable. Check NEXT_PUBLIC_API_URL and make sure the backend is running."
       );
     } finally {
       setLoading(false);
@@ -146,7 +157,10 @@ export default function InsightsPage() {
                   Search insights...
                 </div>
 
-                <button className="grid h-10 w-10 place-items-center rounded-lg border border-white/10 bg-white/5 text-slate-300">
+                <button
+                  type="button"
+                  className="grid h-10 w-10 place-items-center rounded-lg border border-white/10 bg-white/5 text-slate-300"
+                >
                   <Bell className="h-4 w-4" />
                 </button>
 
@@ -186,6 +200,7 @@ export default function InsightsPage() {
                   {questions.map((q) => (
                     <button
                       key={q}
+                      type="button"
                       onClick={() => askAI(q)}
                       className="flex w-full items-center justify-between rounded-lg border border-white/10 bg-black/30 p-4 text-left text-sm font-semibold text-slate-300 transition hover:border-blue-400/50 hover:bg-blue-500/10"
                     >
@@ -221,6 +236,7 @@ export default function InsightsPage() {
                   />
 
                   <button
+                    type="button"
                     onClick={() => askAI()}
                     disabled={loading}
                     className="inline-flex h-12 items-center gap-2 rounded-lg bg-blue-600 px-5 text-sm font-bold transition hover:bg-blue-500 disabled:opacity-60"
