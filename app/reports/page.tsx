@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+
 import {
   BadgeDollarSign,
   Bell,
@@ -16,6 +17,11 @@ import {
   Users,
   WandSparkles
 } from "lucide-react";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+
+if (!API_BASE) {
+  throw new Error("NEXT_PUBLIC_API_URL is not configured.");
+}
 
 const sidebar = [
   { label: "Dashboard", href: "/dashboard", icon: Home },
@@ -27,13 +33,12 @@ const sidebar = [
   { label: "Reports", href: "/reports", icon: FileBarChart },
   { label: "Settings", href: "/settings", icon: Settings }
 ];
-
 const reports = [
   {
     title: "Churn Risk Report",
     description:
       "Executive churn summary with total customers, high-risk customers, expected churn rate, revenue at risk, low satisfaction, and inactive customers.",
-    endpoint: "http://localhost:8000/predictions/reports/churn",
+    endpoint: `${API_BASE}/reports/churn`,
     icon: ShieldAlert,
     color: "text-red-300",
     bg: "bg-red-500/15"
@@ -42,7 +47,7 @@ const reports = [
     title: "Customer Prediction Report",
     description:
       "Full customer-level prediction export including churn probability, risk level, card type, geography, salary, and prediction status.",
-    endpoint: "http://localhost:8000/predictions/reports/customers",
+    endpoint: `${API_BASE}/reports/customers`,
     icon: FileSpreadsheet,
     color: "text-blue-300",
     bg: "bg-blue-500/15"
@@ -51,7 +56,7 @@ const reports = [
     title: "Revenue At Risk Report",
     description:
       "Revenue exposure report for high-risk customers with priority levels and estimated value at risk.",
-    endpoint: "http://localhost:8000/predictions/reports/revenue",
+    endpoint: `${API_BASE}/reports/revenue`,
     icon: BadgeDollarSign,
     color: "text-emerald-300",
     bg: "bg-emerald-500/15"
