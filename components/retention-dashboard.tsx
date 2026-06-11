@@ -62,6 +62,26 @@ type Analytics = {
   topRisk: PredictedCustomer[];
   retentionTrend: { name: string; retention: number; churn: number }[];
 };
+type WorkspaceTheme = "Dark Mode" | "Light Mode" | "System";
+
+function getSystemTheme() {
+  if (typeof window === "undefined") return "Dark Mode";
+
+  return window.matchMedia("(prefers-color-scheme: light)").matches
+    ? "Light Mode"
+    : "Dark Mode";
+}
+
+function applyWorkspaceTheme(theme: WorkspaceTheme) {
+  if (typeof window === "undefined") return;
+
+  const resolvedTheme = theme === "System" ? getSystemTheme() : theme;
+
+  document.documentElement.dataset.retentionTheme =
+    resolvedTheme === "Light Mode" ? "light" : "dark";
+
+  localStorage.setItem("retentioniq-theme", theme);
+}
 const API_BASE = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
 
 if (!API_BASE) {
@@ -500,7 +520,7 @@ function SettingsModule() {
     profilePictureUrl: ""
   });
 
-  const [theme, setTheme] = useState("Dark Mode");
+ const [theme, setTheme] = useState<WorkspaceTheme>("Dark Mode");
 
   const [system, setSystem] = useState({
     productVersion: "RetentionIQ v1.0",
@@ -544,7 +564,18 @@ function SettingsModule() {
           });
         }
 
-        if (data.appearance?.theme) setTheme(data.appearance.theme);
+if (data.appearance?.theme) {
+  const savedTheme = data.appearance.theme as WorkspaceTheme;
+  setTheme(savedTheme);
+  applyWorkspaceTheme(savedTheme);
+} else {
+  const localTheme =
+    (localStorage.getItem("retentioniq-theme") as WorkspaceTheme | null) ||
+    "Dark Mode";
+
+  setTheme(localTheme);
+  applyWorkspaceTheme(localTheme);
+}
         if (data.security) setSecurity({ lastLogin: data.security.lastLogin || "Current session" });
 
         if (data.system) {
@@ -661,9 +692,12 @@ function SettingsModule() {
   }
 
   function saveAppearance(nextTheme: string) {
-    setTheme(nextTheme);
-    saveJson("/settings/appearance", { theme: nextTheme }, "appearance");
-  }
+  const nextWorkspaceTheme = nextTheme as WorkspaceTheme;
+
+  setTheme(nextWorkspaceTheme);
+  applyWorkspaceTheme(nextWorkspaceTheme);
+  saveJson("/settings/appearance", { theme: nextWorkspaceTheme }, "appearance");
+}
 
   async function deleteUploadedData() {
     const confirmed = window.confirm("Are you sure you want to delete all uploaded prediction data from Neon?");
@@ -1113,6 +1147,31 @@ export function RetentionDashboard({ page = "dashboard" }: { page?: string }) {
 
   const [customers, setCustomers] = useState<PredictedCustomer[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+  useEffect(() => {
+  const savedTheme =
+    (localStorage.getItem("retentioniq-theme") as WorkspaceTheme | null) ||
+    "Dark Mode";
+
+  applyWorkspaceTheme(savedTheme);
+
+  const media = window.matchMedia("(prefers-color-scheme: light)");
+
+  function syncSystemTheme() {
+    const currentTheme =
+      (localStorage.getItem("retentioniq-theme") as WorkspaceTheme | null) ||
+      "Dark Mode";
+
+    if (currentTheme === "System") {
+      applyWorkspaceTheme("System");
+    }
+  }
+
+  media.addEventListener("change", syncSystemTheme);
+
+  return () => {
+    media.removeEventListener("change", syncSystemTheme);
+  };
+}, []);
 
   useEffect(() => {
     let active = true;
@@ -1182,6 +1241,59 @@ export function RetentionDashboard({ page = "dashboard" }: { page?: string }) {
   }, [customers, stats]);
 
   return (
+  <>
+    <style jsx global>{`
+      html[data-retention-theme="light"] body {
+        background: #f8fafc !important;
+        color: #0f172a !important;
+      }
+
+      html[data-retention-theme="light"] main {
+        background: #f8fafc !important;
+        color: #0f172a !important;
+      }
+
+      html[data-retention-theme="light"] aside,
+      html[data-retention-theme="light"] header {
+        background: rgba(255, 255, 255, 0.94) !important;
+        border-color: rgba(15, 23, 42, 0.12) !important;
+        color: #0f172a !important;
+      }
+
+      html[data-retention-theme="light"] .bg-black,
+      html[data-retention-theme="light"] .bg-slate-950 {
+        background-color: #f8fafc !important;
+      }
+
+      html[data-retention-theme="light"] .bg-black\\/30,
+      html[data-retention-theme="light"] .bg-white\\/\\[0\\.06\\],
+      html[data-retention-theme="light"] .bg-white\\/5 {
+        background-color: #ffffff !important;
+      }
+
+      html[data-retention-theme="light"] .border-white\\/10,
+      html[data-retention-theme="light"] .border-white\\/5 {
+        border-color: rgba(15, 23, 42, 0.12) !important;
+      }
+
+      html[data-retention-theme="light"] .text-white,
+      html[data-retention-theme="light"] .text-slate-200,
+      html[data-retention-theme="light"] .text-slate-300 {
+        color: #0f172a !important;
+      }
+
+      html[data-retention-theme="light"] .text-slate-400,
+      html[data-retention-theme="light"] .text-slate-500 {
+        color: #64748b !important;
+      }
+
+      html[data-retention-theme="light"] input {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        border-color: rgba(15, 23, 42, 0.14) !important;
+      }
+    `}</style>
+
     <main className="min-h-screen bg-black text-white">
       <div className="flex min-h-screen">
         <aside className="hidden w-72 border-r border-white/10 bg-slate-950 p-5 lg:block">
@@ -1285,5 +1397,6 @@ export function RetentionDashboard({ page = "dashboard" }: { page?: string }) {
         </section>
       </div>
     </main>
+    </>
   );
 }
