@@ -63,7 +63,7 @@ type Analytics = {
   retentionTrend: { name: string; retention: number; churn: number }[];
 };
 
-const API_BASE = "http://localhost:8000";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 const sidebar = [
   { label: "Landing Page", href: "/", page: "landing", icon: Home },
