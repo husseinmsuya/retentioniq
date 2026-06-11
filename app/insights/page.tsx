@@ -54,7 +54,7 @@ export default function InsightsPage() {
     setAnswer("");
 
     try {
-      const res = await fetch("http://localhost:8000/ai/insights", {
+      const res = await fetch(`${API_BASE}/ai/insights`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -83,7 +83,7 @@ export default function InsightsPage() {
       );
     } catch {
       setAnswer(
-        "Backend AI endpoint haijawaka bado. Run FastAPI backend on http://localhost:8000 then try again."
+       "Backend AI endpoint is not reachable. Check NEXT_PUBLIC_API_URL and make sure the backend is running."
       );
     } finally {
       setLoading(false);
