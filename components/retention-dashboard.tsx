@@ -16,7 +16,6 @@ import {
   FileText,
   Home,
   Loader2,
-  Menu,
   MessageSquareText,
   Search,
   Send,
@@ -24,8 +23,7 @@ import {
   Target,
   Upload,
   Users,
-  WandSparkles,
-  X
+  WandSparkles
 } from "lucide-react";
 import {
   Area,
@@ -1140,6 +1138,7 @@ function ModuleContent({
 
   return <EmptyState label="Module content coming soon" />;
 }
+
 export function RetentionDashboard({ page = "dashboard" }: { page?: string }) {
   const { getToken } = useAuth();
   const { user } = useUser();
@@ -1148,33 +1147,31 @@ export function RetentionDashboard({ page = "dashboard" }: { page?: string }) {
 
   const [customers, setCustomers] = useState<PredictedCustomer[]>([]);
   const [loadingData, setLoadingData] = useState(true);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   useEffect(() => {
-    const savedTheme =
+  const savedTheme =
+    (localStorage.getItem("retentioniq-theme") as WorkspaceTheme | null) ||
+    "Dark Mode";
+
+  applyWorkspaceTheme(savedTheme);
+
+  const media = window.matchMedia("(prefers-color-scheme: light)");
+
+  function syncSystemTheme() {
+    const currentTheme =
       (localStorage.getItem("retentioniq-theme") as WorkspaceTheme | null) ||
       "Dark Mode";
 
-    applyWorkspaceTheme(savedTheme);
-
-    const media = window.matchMedia("(prefers-color-scheme: light)");
-
-    function syncSystemTheme() {
-      const currentTheme =
-        (localStorage.getItem("retentioniq-theme") as WorkspaceTheme | null) ||
-        "Dark Mode";
-
-      if (currentTheme === "System") {
-        applyWorkspaceTheme("System");
-      }
+    if (currentTheme === "System") {
+      applyWorkspaceTheme("System");
     }
+  }
 
-    media.addEventListener("change", syncSystemTheme);
+  media.addEventListener("change", syncSystemTheme);
 
-    return () => {
-      media.removeEventListener("change", syncSystemTheme);
-    };
-  }, []);
+  return () => {
+    media.removeEventListener("change", syncSystemTheme);
+  };
+}, []);
 
   useEffect(() => {
     let active = true;
@@ -1244,269 +1241,196 @@ export function RetentionDashboard({ page = "dashboard" }: { page?: string }) {
   }, [customers, stats]);
 
   return (
-    <>
-      <style jsx global>{`
-        html[data-retention-theme="light"] body {
-          background: #f8fafc !important;
-          color: #0f172a !important;
-        }
+  <>
+    <style jsx global>{`
+      html[data-retention-theme="light"] body {
+        background: #f8fafc !important;
+        color: #0f172a !important;
+      }
 
-        html[data-retention-theme="light"] main {
-          background: #f8fafc !important;
-          color: #0f172a !important;
-        }
+      html[data-retention-theme="light"] main {
+        background: #f8fafc !important;
+        color: #0f172a !important;
+      }
 
-        html[data-retention-theme="light"] aside,
-        html[data-retention-theme="light"] header {
-          background: rgba(255, 255, 255, 0.94) !important;
-          border-color: rgba(15, 23, 42, 0.12) !important;
-          color: #0f172a !important;
-        }
+      html[data-retention-theme="light"] aside,
+      html[data-retention-theme="light"] header {
+        background: rgba(255, 255, 255, 0.94) !important;
+        border-color: rgba(15, 23, 42, 0.12) !important;
+        color: #0f172a !important;
+      }
 
-        html[data-retention-theme="light"] .bg-black,
-        html[data-retention-theme="light"] .bg-slate-950 {
-          background-color: #f8fafc !important;
-        }
+      html[data-retention-theme="light"] .bg-black,
+      html[data-retention-theme="light"] .bg-slate-950 {
+        background-color: #f8fafc !important;
+      }
 
-        html[data-retention-theme="light"] .bg-black\\/30,
-        html[data-retention-theme="light"] .bg-white\\/\\[0\\.06\\],
-        html[data-retention-theme="light"] .bg-white\\/5 {
-          background-color: #ffffff !important;
-        }
+      html[data-retention-theme="light"] .bg-black\\/30,
+      html[data-retention-theme="light"] .bg-white\\/\\[0\\.06\\],
+      html[data-retention-theme="light"] .bg-white\\/5 {
+        background-color: #ffffff !important;
+      }
 
-        html[data-retention-theme="light"] .border-white\\/10,
-        html[data-retention-theme="light"] .border-white\\/5 {
-          border-color: rgba(15, 23, 42, 0.12) !important;
-        }
+      html[data-retention-theme="light"] .border-white\\/10,
+      html[data-retention-theme="light"] .border-white\\/5 {
+        border-color: rgba(15, 23, 42, 0.12) !important;
+      }
 
-        html[data-retention-theme="light"] .text-white,
-        html[data-retention-theme="light"] .text-slate-200,
-        html[data-retention-theme="light"] .text-slate-300 {
-          color: #0f172a !important;
-        }
+      html[data-retention-theme="light"] .text-white,
+      html[data-retention-theme="light"] .text-slate-200,
+      html[data-retention-theme="light"] .text-slate-300 {
+        color: #0f172a !important;
+      }
 
-        html[data-retention-theme="light"] .text-slate-400,
-        html[data-retention-theme="light"] .text-slate-500 {
-          color: #64748b !important;
-        }
+      html[data-retention-theme="light"] .text-slate-400,
+      html[data-retention-theme="light"] .text-slate-500 {
+        color: #64748b !important;
+      }
 
-        html[data-retention-theme="light"] input {
-          background: #ffffff !important;
-          color: #0f172a !important;
-          border-color: rgba(15, 23, 42, 0.14) !important;
-        }
-      `}</style>
+      html[data-retention-theme="light"] input {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        border-color: rgba(15, 23, 42, 0.14) !important;
+      }
+    `}</style>
 
-      <main className="min-h-screen bg-black pb-24 text-white lg:pb-0">
-        <div className="flex min-h-screen">
-          <aside className="hidden w-72 border-r border-white/10 bg-slate-950 p-5 lg:block">
-            <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 place-items-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600">
-                <BrainCircuit className="h-5 w-5" />
-              </div>
-              <div>
-                <h1 className="text-lg font-black">RetentionIQ</h1>
-                <p className="text-xs text-slate-500">{role} Workspace</p>
+    <main className="min-h-screen bg-black pb-24 text-white lg:pb-0">
+      <div className="flex min-h-screen">
+        <aside className="hidden w-72 border-r border-white/10 bg-slate-950 p-5 lg:block">
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 place-items-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600">
+              <BrainCircuit className="h-5 w-5" />
+            </div>
+            <div>
+              <h1 className="text-lg font-black">RetentionIQ</h1>
+              <p className="text-xs text-slate-500">{role} Workspace</p>
+            </div>
+          </div>
+
+          <nav className="mt-8 space-y-1">
+            {sidebar.map((item) => {
+              const Icon = item.icon;
+              const active = item.page === page;
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
+                    active ? "bg-blue-500/15 text-blue-200" : "text-slate-400 hover:bg-white/5 hover:text-white"
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </aside>
+
+        <section className="min-w-0 flex-1">
+          <header className="sticky top-0 z-40 border-b border-white/10 bg-black/80 backdrop-blur-xl">
+            <div className="flex h-16 items-center justify-between px-5 lg:px-8">
+             <div className="min-w-0">
+  <p className="truncate text-xs text-slate-500 sm:text-sm">
+    Signed in as {role}
+  </p>
+  <h2 className="truncate text-sm font-black sm:text-base">
+    {user?.firstName ?? "RetentionIQ"} Workspace
+  </h2>
+</div>
+
+              <div className="flex items-center gap-3">
+                <div className="hidden h-10 w-80 items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-slate-500 md:flex">
+                  <Search className="h-4 w-4" />
+                  Search customers...
+                </div>
+                <UserButton afterSignOutUrl="/" />
               </div>
             </div>
+          </header>
 
-            <nav className="mt-8 space-y-1">
-              {sidebar.map((item) => {
-                const Icon = item.icon;
-                const active = item.page === page;
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold ${
-                      active ? "bg-blue-500/15 text-blue-200" : "text-slate-400 hover:bg-white/5 hover:text-white"
-                    }`}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
-          </aside>
-
-          <section className="min-w-0 flex-1">
-            <header className="sticky top-0 z-40 border-b border-white/10 bg-black/85 backdrop-blur-xl">
-              <div className="flex h-16 items-center justify-between gap-3 px-4 sm:px-5 lg:px-8">
-                <div className="flex min-w-0 items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setMobileMenuOpen(true)}
-                    aria-label="Open navigation"
-                    className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/5 text-slate-200 lg:hidden"
-                  >
-                    <Menu className="h-5 w-5" />
-                  </button>
-
-                  <div className="min-w-0">
-                    <p className="truncate text-xs text-slate-500 sm:text-sm">
-                      Signed in as {role}
-                    </p>
-                    <h2 className="truncate text-sm font-black sm:text-base">
-                      {user?.firstName ?? "RetentionIQ"} Workspace
-                    </h2>
-                  </div>
-                </div>
-
-                <div className="flex shrink-0 items-center gap-3">
-                  <div className="hidden h-10 w-80 items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-slate-500 md:flex">
-                    <Search className="h-4 w-4" />
-                    Search customers...
-                  </div>
-                  <UserButton afterSignOutUrl="/" />
-                </div>
+          <div className="px-5 py-8 lg:px-8">
+            <div className="mb-8 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+              <div>
+                <p className="text-sm font-black uppercase tracking-[0.25em] text-blue-400">{meta.eyebrow}</p>
+                <h2 className="mt-2 text-2xl font-black leading-tight sm:text-4xl">
+  {meta.title}
+</h2>
+                <p className="mt-2 max-w-3xl text-slate-400">{meta.body}</p>
               </div>
-            </header>
 
-            {mobileMenuOpen && (
-              <div className="fixed inset-0 z-[60] lg:hidden">
-                <button
-                  type="button"
-                  aria-label="Close navigation overlay"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="absolute inset-0 bg-black/70"
-                />
+              <Link
+                href="/upload"
+                className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2 text-sm font-bold text-white hover:from-blue-500 hover:to-indigo-500"
+              >
+                <Upload className="h-4 w-4" />
+                Upload Data
+              </Link>
+            </div>
 
-                <aside className="absolute left-0 top-0 h-full w-[86vw] max-w-80 overflow-y-auto border-r border-white/10 bg-slate-950 p-5 shadow-2xl">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex min-w-0 items-center gap-3">
-                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600">
-                        <BrainCircuit className="h-5 w-5" />
-                      </div>
-                      <div className="min-w-0">
-                        <h1 className="truncate text-lg font-black">RetentionIQ</h1>
-                        <p className="truncate text-xs text-slate-500">{role} Workspace</p>
-                      </div>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setMobileMenuOpen(false)}
-                      aria-label="Close navigation"
-                      className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-white/10 bg-white/5 text-slate-200"
-                    >
-                      <X className="h-5 w-5" />
-                    </button>
-                  </div>
-
-                  <nav className="mt-8 space-y-1 pb-8">
-                    {sidebar.map((item) => {
-                      const Icon = item.icon;
-                      const active = item.page === page;
-
-                      return (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={`flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-semibold ${
-                            active ? "bg-blue-500/15 text-blue-200" : "text-slate-400 hover:bg-white/5 hover:text-white"
-                          }`}
-                        >
-                          <Icon className="h-4 w-4 shrink-0" />
-                          <span className="truncate">{item.label}</span>
-                        </Link>
-                      );
-                    })}
-                  </nav>
-                </aside>
+            {loadingData && (
+              <div className="mb-6 rounded-xl border border-blue-500/20 bg-blue-500/10 p-4 text-sm text-blue-100">
+                Loading latest prediction data from Neon...
               </div>
             )}
 
-            <div className="px-4 py-6 sm:px-5 sm:py-8 lg:px-8">
-              <div className="mb-8 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-                <div className="min-w-0">
-                  <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-400 sm:text-sm sm:tracking-[0.25em]">
-                    {meta.eyebrow}
-                  </p>
-                  <h2 className="mt-2 text-2xl font-black leading-tight sm:text-4xl">
-                    {meta.title}
-                  </h2>
-                  <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400 sm:text-base">
-                    {meta.body}
-                  </p>
-                </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6">
+              {[
+                { label: "Total Customers", value: stats.total, icon: Users },
+                { label: "High Risk", value: stats.highRisk, icon: AlertTriangle },
+                { label: "Critical Risk", value: stats.critical, icon: Target },
+                { label: "Expected Churn", value: `${stats.expectedChurnRate}%`, icon: Activity },
+                { label: "Avg Risk Score", value: `${stats.avgRisk}%`, icon: CheckCircle2 },
+                { label: "Revenue at Risk", value: formatTZS(stats.revenueAtRisk), icon: BadgeDollarSign }
+              ].map((kpi) => {
+                const Icon = kpi.icon;
 
-                <Link
-                  href="/upload"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 text-sm font-bold text-white hover:from-blue-500 hover:to-indigo-500 sm:w-auto sm:py-2"
-                >
-                  <Upload className="h-4 w-4" />
-                  Upload Data
-                </Link>
-              </div>
-
-              {loadingData && (
-                <div className="mb-6 rounded-xl border border-blue-500/20 bg-blue-500/10 p-4 text-sm text-blue-100">
-                  Loading latest prediction data from Neon...
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-6">
-                {[
-                  { label: "Total Customers", value: stats.total, icon: Users },
-                  { label: "High Risk", value: stats.highRisk, icon: AlertTriangle },
-                  { label: "Critical Risk", value: stats.critical, icon: Target },
-                  { label: "Expected Churn", value: `${stats.expectedChurnRate}%`, icon: Activity },
-                  { label: "Avg Risk Score", value: `${stats.avgRisk}%`, icon: CheckCircle2 },
-                  { label: "Revenue at Risk", value: formatTZS(stats.revenueAtRisk), icon: BadgeDollarSign }
-                ].map((kpi) => {
-                  const Icon = kpi.icon;
-
-                  return (
-                    <div key={kpi.label} className="rounded-xl border border-white/10 bg-white/[0.06] p-5">
-                      <div className="grid h-11 w-11 place-items-center rounded-lg bg-blue-500/15 text-blue-300">
-                        <Icon className="h-5 w-5" />
-                      </div>
-                      <p className="mt-5 text-xs font-bold uppercase tracking-wide text-slate-500">{kpi.label}</p>
-                      <p className="mt-2 break-words text-2xl font-black leading-tight sm:text-3xl">
-                        {kpi.value}
-                      </p>
+                return (
+                  <div key={kpi.label} className="rounded-xl border border-white/10 bg-white/[0.06] p-5">
+                    <div className="grid h-11 w-11 place-items-center rounded-lg bg-blue-500/15 text-blue-300">
+                      <Icon className="h-5 w-5" />
                     </div>
-                  );
-                })}
-              </div>
-
-              <ModuleContent page={page} customers={customers} analytics={analytics} stats={stats} />
+                    <p className="mt-5 text-xs font-bold uppercase tracking-wide text-slate-500">{kpi.label}</p>
+                    <p className="mt-2 break-words text-2xl font-black leading-tight sm:text-3xl">
+  {kpi.value}
+</p>
+                  </div>
+                );
+              })}
             </div>
-          </section>
-        </div>
 
-        <nav className="fixed bottom-0 left-0 right-0 z-50 grid grid-cols-5 border-t border-white/10 bg-black/95 px-2 py-2 text-[11px] text-slate-300 backdrop-blur lg:hidden">
-          {[sidebar[1], sidebar[2], sidebar[3], sidebar[4]].map((item) => {
-            const Icon = item.icon;
-            const active = item.page === page;
+                        <ModuleContent page={page} customers={customers} analytics={analytics} stats={stats} />
+          </div>
+        </section>
+      </div>
 
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex min-w-0 flex-col items-center gap-1 rounded-lg px-1 py-2 ${
-                  active ? "bg-blue-500/15 text-blue-300" : "text-slate-400"
-                }`}
-              >
-                <Icon className="h-4 w-4 shrink-0" />
-                <span className="max-w-full truncate">{item.label}</span>
-              </Link>
-            );
-          })}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 grid grid-cols-5 border-t border-white/10 bg-black/95 px-2 py-2 text-[11px] text-slate-300 backdrop-blur lg:hidden">
+        {[
+          sidebar[1],
+          sidebar[2],
+          sidebar[3],
+          sidebar[4],
+          sidebar[11]
+        ].map((item) => {
+          const Icon = item.icon;
+          const active = item.page === page;
 
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen(true)}
-            className="flex min-w-0 flex-col items-center gap-1 rounded-lg px-1 py-2 text-slate-400"
-          >
-            <Menu className="h-4 w-4 shrink-0" />
-            <span className="max-w-full truncate">More</span>
-          </button>
-        </nav>
-      </main>
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex min-w-0 flex-col items-center gap-1 rounded-lg px-1 py-2 ${
+                active ? "bg-blue-500/15 text-blue-300" : "text-slate-400"
+              }`}
+            >
+              <Icon className="h-4 w-4 shrink-0" />
+              <span className="max-w-full truncate">{item.label}</span>
+            </Link>
+          );
+        })}
+      </nav>
+    </main>
     </>
   );
 }
